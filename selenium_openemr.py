@@ -49,7 +49,7 @@ def read_IDcarc_name():
     for f in os.listdir(workingpath):
         if f.endswith(".pdf") and f.startswith("img"):
             idcardfile.append(f)
-            print("read id " + idcardfile[0])
+            #print("read id " + idcardfile[0])
     return idcardfile
     
 def read_pdf_names():
@@ -58,7 +58,7 @@ def read_pdf_names():
         cnt = 0
         if f.endswith(".pdf") and not f.startswith("img"):
             pdfnames.append(f)
-            print("read pdf " + pdfnames[cnt])
+            #print("read pdf " + pdfnames[cnt])
             cnt = cnt +1
     return pdfnames
 
@@ -116,7 +116,8 @@ def clear_alerts():
         alert = browser.switch_to_alert()
         while alert:
             alert.accept()
-            print ("alert accepted")
+            #print ("alert accepted")
+            time.sleep(1)
             alert = browser.switch_to_alert()
     except:
         print ("no alert")
@@ -137,19 +138,22 @@ def hitescape():
     
 def nav2pathist():
     try:
-        WebDriverWait(driver, 4).until(EC.alert_is_present())
+        WebDriverWait(driver, 1).until(EC.alert_is_present())
     except:
         print ("no alert")
     alerts = checkalert()
     while alerts:
         alerts = checkalert()
     hitescape()
-    #clear_alerts()
+    time.sleep(1)
+    clear_alerts()
+    time.sleep(1)
+    clear_alerts()
     driver.switch_to.default_content()
     driver.switch_to.frame(driver.find_element_by_name("pat"))
     #click the history hot link, first on the left under pt name
     el = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "/html/body/table[2]/tbody/tr/td/a[1]")));
-    time.sleep(2)
+    time.sleep(1)
     clear_alerts()
     el.click()
     return
@@ -171,6 +175,10 @@ def shortcut():
     return
 
 def nav2lifestyle():
+    #time.sleep(5)
+    clear_alerts()
+    #time.sleep(3)
+    #clear_alerts()
     driver.switch_to.default_content()
     driver.switch_to.frame(driver.find_element_by_name("pat"))
     el = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "/html/body/div/div/div[1]/div[2]/div/a[2]")));
@@ -209,15 +217,15 @@ def nav2lifestyle():
     el.click()
     return
 
-def nav_2_right_side_tabs():
-    time.sleep(3)
-    checkalert()
-    time.sleep(3)
+def enter_allergies():
+    time.sleep(4)
     checkalert()
     #click the allergies button
     el = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="patient_stats_issues"]/tbody/tr[2]/td/div[1]/table/tbody/tr/td[1]/a')));
     checkalert()
     el.click()
+    time.sleep(1)
+
     
     #click the add button for medicine allergies
     el = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="patient_stats"]/form/a')));
@@ -225,15 +233,22 @@ def nav_2_right_side_tabs():
     time.sleep(1)
     driver.switch_to.default_content()
     count = len(driver.find_elements_by_xpath("//iframe"))
-    print ("iframecount in rightside " + str(count))
+    #print ("iframecount in rightside " + str(count))
     driver.switch_to.frame(driver.find_element_by_id("modalframe"))
     #put the allergy in this editbox
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input')));
-    set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input',excel[1][52]);
+    time.sleep(2)
+    #print ("med allergies are " +excel[1][52])
+    #print ("other allergies are " +excel[1][53])
+    if len(excel[1][52]) > 0:    
+        set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input',excel[1][52]);
+    else:
+        set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input',"NKDA (No known drug allergies)");
     #click save
     click_2_xpath('/html/body/div[1]/div/form/center/p/input[1]');
     driver.switch_to.default_content()
     driver.switch_to.frame(driver.find_element_by_name("pat"))
+
     
     #click the add button for other allergies
     time.sleep(1)
@@ -244,15 +259,22 @@ def nav_2_right_side_tabs():
     driver.switch_to.frame(driver.find_element_by_id("modalframe"))
     #put the allergy in this editbox
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input')));
-    set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input',excel[1][53]);
+    if len(excel[1][53]) > 0:    
+        set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input',excel[1][53]);
+    else:
+                 set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input',"No known other allergies");
     #click save
     click_2_xpath('/html/body/div[1]/div/form/center/p/input[1]');
     driver.switch_to.default_content()
     driver.switch_to.frame(driver.find_element_by_name("pat"))
+        
     #click back
-    time.sleep(1)
+    time.sleep(5)
     click_2_xpath('//*[@id="back"]');
     
+    return
+
+def enter_med_problems():
     #click the med problem button
     time.sleep(1)
     el = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="patient_stats_issues"]/tbody/tr[1]/td/div[1]/table/tbody/tr/td[1]/a')));
@@ -266,7 +288,10 @@ def nav_2_right_side_tabs():
     driver.switch_to.frame(driver.find_element_by_id("modalframe"))
     #set title to whatever is in the excel field
     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input')));
-    set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input', excel[1][65])
+    if len(excel[1][65]) > 0:
+        set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input', excel[1][65])
+    else:
+        set_by_xpath('/html/body/div[1]/div/form/table/tbody/tr[3]/td[2]/input', "No known medical problems")
     #set outcome to unassigned
     set_by_xpath('//*[@id="form_outcome"]', "Unassigned")
     #click save
@@ -274,9 +299,21 @@ def nav_2_right_side_tabs():
     driver.switch_to.default_content()
     driver.switch_to.frame(driver.find_element_by_name("pat"))
     #click back
-    time.sleep(1)
+    time.sleep(3)
     click_2_xpath('//*[@id="back"]');
 
+    return
+
+def nav_2_right_side_tabs():
+    time.sleep(3)
+    checkalert()
+    time.sleep(3)
+    checkalert()
+
+    enter_allergies()
+        
+    enter_med_problems()
+        
     return    
 
 def uploaddrops():
@@ -303,7 +340,7 @@ def uploaddrops():
 
     #get PT ID/ins scan if there is one
     idcardfname = read_IDcarc_name()
-    print (idcardfname[0])
+    #print (idcardfname[0])
     if len(idcardfname) > 0:
         cardname = workingpath + idcardfname[0]
         #open patient information node
@@ -424,7 +461,7 @@ def testff():
     #print ("iframecount in testff " + str(count))
     driver.switch_to.frame(driver.find_element_by_id("modalframe"))
 
-    time.sleep(1)
+    time.sleep(3)
     #el = WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Confirm Create New Patient']")));
     el = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@value='Confirm Create New Patient']")));
     el.click();
@@ -594,20 +631,7 @@ nav_2_right_side_tabs()
 uploaddrops()
 
 input("\n take a look then Press ENTER to continue...")
-quit()
 
-#nav2summary()
-#time.sleep(1)
-#click_by_css_dataelement('smoking-status-add-button')
-#time.sleep(1)
-#set_smoking(excel[1][60])
-time.sleep(1)
-nav2pmh()
-time.sleep(1)
-add_pt_phone_message()
-read_pdf_names()
-upload_attachments()
 driver.close()
 driver.quit()
-input("\n Intake complete!  Check for any error message above.  Press ENTER to continue...")
-
+quit()
